@@ -9,9 +9,10 @@ class Sort
 private:
     int iter=0;
 public:
-    Sort(/* args */);
+    Sort(vector<int> dlt);
    ~Sort();
-    vector<int> vec;
+
+    vector<int> vec,temp;
    void selection(vector<int> &vec);    // Complexity n^2/2
    void insertion(vector<int> &vec);    // Complexity best n avg n^2/4 worst selection
    void shellsort(vector<int> &vec);    // Complexity sqrt(n^2) for h = 3x+1
@@ -21,8 +22,10 @@ public:
    void shuffle(vector<int> &vec);      // Complexity n
 };
 
-Sort::Sort(/* args */)
+Sort::Sort(vector<int> dlt)
 {
+    vec = dlt;
+    temp.resize(vec.size());
 }
 
 Sort::~Sort()
@@ -83,31 +86,32 @@ void Sort::mergesort(int s, int e)
 {
     
     int I = e-s;
-    ivec temp(I+1,0);
-    
+
     if (e==s) return;
     int m = I>>1;//m+1
-    mergesort(s,m);
-    mergesort(m+1,e);
     
-    
+    mergesort(s,s+m);
+    mergesort(s+m+1,e);
 
     int i=s,
-        j=m+1,
+        j=s+m+1,
         k=0;
 
-    while(i<=m||j<=e)
+    while(i<=(s+m)||j<=e)
     {
         (vec[i]<vec[j])?
-            (i<=m)?temp[k++]=vec[i++]:temp[k++]=vec[j++]:
-            (j<=e)?temp[k++]=vec[j++]:temp[k++]=vec[i++];
+            (i<=(s+m))?
+                temp[k++]=vec[i++]:
+                temp[k++]=vec[j++]:
+            (j<=e)?
+                temp[k++]=vec[j++]:
+                temp[k++]=vec[i++];
     }
 
     for (int i = 0; i < k; i++)
         Sort::vec[s+i]=temp[i];
-    //ivec ans(temp);
-    temp.resize(0);
-    
+    ivec ans(temp);
+    //{5 6 8,0,2,1,7,3,9,4};    
     return;
 }
 

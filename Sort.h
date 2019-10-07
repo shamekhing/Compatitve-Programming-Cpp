@@ -1,5 +1,21 @@
 #include<bits/stdc++.h>
 
+/*
+ * Sort Algorithms 
+ * How To Use :
+ * 
+ *  #include"Sort.h"
+ *  Sort(vector).sortMethod()
+ * 
+ * Sort Methods:
+ * 1- selection
+ * 2- insertion
+ * 3- shellsort
+ * 4- mergesort
+ * 5- quicksort
+ * 6- shuffle
+ */
+
 using namespace std;
 typedef vector<int> ivec;
 typedef vector <int>::iterator veci;
@@ -7,40 +23,39 @@ typedef vector <int>::iterator veci;
 class Sort
 {
 private:
-    int iter=0;
+    ivec &vec,temp;
+protected:
+    int siz;
+
 public:
-    Sort(vector<int> dlt);
+    Sort(ivec &v);
    ~Sort();
 
-    vector<int> vec,temp;
-   void selection(vector<int> &vec);    // Complexity n^2/2
-   void insertion(vector<int> &vec);    // Complexity best n avg n^2/4 worst selection
-   void shellsort(vector<int> &vec);    // Complexity sqrt(n^2) for h = 3x+1
-   void mergesort(int s, int e);
-   void quicksort(vector<int> &vec);    // Complexity sqrt(n^2) for h = 3x+1
-   
-   void shuffle(vector<int> &vec);      // Complexity n
+   void selection();    // Complexity n^2/2
+   void insertion();    // Complexity best n avg n^2/4 worst selection
+   void shellsort();    // Complexity sqrt(n^2) for h = 3x+1
+   void mergesort();    // Complexity n log(n)
+        void mergesort(int s , int e); // over loaded with default argument
+   void quicksort();    // Complexity sqrt(n^2) for h = 3x+1
+
+   void shuffle();      // Complexity n
 };
 
-Sort::Sort(vector<int> dlt)
-{
-    vec = dlt;
-    temp.resize(vec.size());
-}
+Sort::Sort(ivec &v):vec(v), siz(v.size()), temp(v){};
 
 Sort::~Sort()
 {
 }
 
-void Sort::selection(vector<int> &vec)
+void Sort::selection()
 {
-    int siz = vec.size();
+    //int siz = vec.size();
     for (int i = 0; i < siz; i++)
     {
         int m=i;
         for (int j = i+1; j < siz; j++)
         {
-            if(vec[j]<vec[i]) // min2max 
+            if(vec[j]<vec[m]) // min2max 
                 m=j;
         }
         if(i!=m)
@@ -48,9 +63,9 @@ void Sort::selection(vector<int> &vec)
     }
 }
 
-void Sort::insertion(vector<int> &vec)
+void Sort::insertion()
 {
-    int siz = vec.size();
+    //int siz = vec.size();
     for (int i = 0; i < siz; i++)
     {
         for (int j = i; j > 0; j--)
@@ -61,11 +76,11 @@ void Sort::insertion(vector<int> &vec)
     }
 }
 
-void shellsort(vector<int> &vec, int h = 1) // TODO
+/*
+void shellsort(int h = 1) // TODO
 {
-    int siz = vec.size();
     
-    while(h<siz/3)
+    while(h < siz/3)
         h=3*h+1;
     
     while (h > 0) // or h>=1
@@ -80,7 +95,7 @@ void shellsort(vector<int> &vec, int h = 1) // TODO
         h/=3;
     }
 }
-
+*/
 
 void Sort::mergesort(int s, int e)
 {
@@ -115,16 +130,12 @@ void Sort::mergesort(int s, int e)
     return;
 }
 
+void Sort::mergesort(){mergesort(0,siz-1);}
 
 
-
-
-
-
-
-void Sort::shuffle(vector<int> &vec)
+void Sort::shuffle()
 {
-    int r,siz = vec.size();
+    int r;//siz = vec.size();
     for (int i = 0; i < siz; i++)
     {
         r = rand() % i; // + offset

@@ -5,17 +5,18 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-#include"Sort.h"
+//#include"Sort.h"
+#include"LinkedList.h"
 
 int main(){
 
-    vector<int> ans, v={5,8,6,0,2,1,7,3,9,4};
-    Sort ss(v);
-    ss.vec = v;
-    ss.mergesort(0,9);
-    v = ss.vec;
-    for(int i:v)
-        cout<<i<<' ';
-
+    LinkedList ll;
+    ll.insert(1);
+    ll.insert(3);
+    ll.insert(4);
+    ll.insert(7);
+    ll.insert(9);
+    ll.display();
+  
     return 0;
 }

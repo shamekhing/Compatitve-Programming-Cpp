@@ -57,66 +57,38 @@ struct llrbBST //left leaning red black binary search tree
 {
     
     struct node // for llrbBST usage
-    { 
-        int data; node *L=NULL,*R=NULL; bool red=1; 
-        node(int datum):data(datum){}
-    }; 
+    { int data; node *L=NULL,*R=NULL; bool red=1; node(int datum):data(datum){} }; 
     /*
     * null links are black by default
     * and stored in child refering to
     * perants 
     * */
-
-    node *H=NULL; // head, tail
-
+    node *H=NULL; // tree head
+    
+    // node p: perent, c: child
     node* rotL(node *p) // rotate left
-    {
-        node *c = p->R; 
-        // node p: perent, c: child
-        p->R = c->L;
-        c->L = p;
-        c->red = p->red;
-        p->red = 1;
-
-        if(p==H) H=c;
-        return c;
-    }
-
+    { node *c = p->R; p->R = c->L; c->L = p; c->red = p->red; p->red = 1; if(p==H) H=c; return c; }
     node* rotR(node *p) // rotate right
-    {
-        node *c = p->L; 
-        // node p: perent, c: child
-        p->L = c->R;
-        c->R = p;
-        c->red = p->red;
-        p->red = 1;
+    { node *c = p->L; p->L = c->R; c->R = p; c->red = p->red; p->red = 1; if(p==H) H=c; return c; }
+
+    void flip(node *p) // flip colors
+    { (p==H)? p->red = 0: p->red = 1; p->L->red = 0/*!p->L->red*/; p->R->red = 0/*!p->L->red*/; }
+    void fflip(node *p) // full flip colors
+    { p->red = !p->red ; p->L->red = !p->L->red; p->R->red = !p->R->red; }
+    
+    bool isRed(node* n)
+    { if(n==NULL) return false; else return n->red; }
         
-        if(p==H) H=c;
-        return c;
-    }
-
-    void flip(node *p)
-    {
-        (p==H)?
-            p->red = 0:
-            p->red = 1;
-        p->L->red = 0;
-        p->R->red = 0;
-    }
-
+    /* insert new nodes */
     node* put(node *N, int data)
     {
-        //static int data = datum;
-
         if(N==NULL)
         {
             node *t = new node(data);
-            
-            if(H==NULL) 
-               H=t,H->red=0;
+            if(H==NULL) H=t,H->red=0;
             return t;
         } 
-        
+
              if(data < N->data) N->L = put(N->L,data);
         else if(data > N->data) N->R = put(N->R,data);
         else N->data = data;
@@ -128,27 +100,160 @@ struct llrbBST //left leaning red black binary search tree
         return N;
     }
 
-    bool isRed(node* n)
+
+    node* red2L(node* N)
     {
-        if(n==NULL)
-            return false;
-        else
-            return n->red;
+        fflip(N);
+        if(isRed(N->R->L))
+        {
+            N->R = rotR(N->R);
+            N = rotL(N);
+            fflip(N);
+        }
+        return N;
+    }
+    node* red2R(node* N)
+    {
+        fflip(N);
+        if(isRed(N->L->L))
+        {
+            N = rotR(N);
+            fflip(N);
+        }
+        return N;
     }
 
-    void display(node* N)
+    node* del(node *N, int data)
     {
-        if(N!=NULL)
+        if(data < N->data)
         {
-            char c = char(N->data);
-            printf("%c ", c);
-            display(N->L);
-            display(N->R);
+            if(!isRed(N->L) && !isRed(N->L->L))
+                N = red2L(N);
+            N->L = del(N->L, data); 
         }
-            
-        return;
-    }
+        else
+        {
+            if(isRed(N->L)) N = rotR(N);
+            N->L = del(N->L, data);
+
+        }
         
+    }
+    
+    void display(node* N)
+    { if(N!=NULL) { char c = char(N->data); printf("%c ", c); display(N->L); display(N->R); } return; }
+
+};
+
+struct avlBST
+{   
+    struct node 
+    { int d; node*l=NULL,*r=NULL; int h=1; 
+    node(int datum):d(datum){} }; 
+    int H(node *N) // height
+    { if (N == NULL) return 0; return N->h; } 
+    int BF (node *N) // balance factor 
+    { if (N == NULL) return 0; return H(N->l)-H(N->r); } 
+
+    node* root=NULL;
+
+    node *RR(node *p) // Rotate Right
+    {   // ROTATE
+        node *c = p->l; p->l = c->r; c->r = p; 
+        // Update H 
+        p->h = max(H(p->l), H(p->r)) +1; 
+        c->h = max(H(c->l), H(c->r)) +1; 
+        // Return New Perent 
+        return c; 
+    } 
+        
+    node *RL(node *p) 
+    {   // Rotate
+        node *c = p->r; p->r = c->l; c->l = p;
+        // Update H 
+        p->h = max(H(p->l),	H(p->r)) +1; 
+        c->h = max(H(c->l), H(c->r)) +1;
+        // Return New Perent 
+        return c; 
+    } 
+
+    node* makeBalance(node *N, int B, int d)
+    {
+        if ( B>1 && d < N->l->d) return RR(N);  // Left Left Case 
+        if ( B>1 && d > N->l->d) 
+        { N->l = RL(N->l); return RR(N); }      // Left Right Case
+
+        if ( B<-1 && d > N->r->d) return RL(N); // Right Right Case 
+        if ( B<-1 && d < N->r->d) 
+        { N->r = RR(N->r); return RL(N); }      // Right Left Case 
+
+        return N; // no change
+    }
+
+    node* insert(node* N, int d) 
+    { 
+        // insertion part 
+        if (N == NULL) { N = new node(d); return N; } 
+        
+            if (d < N->d) N->l = insert(N->l, d); 
+        else if (d > N->d) N->r = insert(N->r, d); 
+        else return N; 
+
+        // updating ancestor height
+        N->h = max(H(N->l), H(N->r)) +1; 
+        // check the balance 
+        return makeBalance(N,BF(N),d);    
+    } 
+
+    node* remove(node* N, int d)  
+    {  
+        
+        if (N == NULL)  return N;  
+    
+             if ( d < N->d ) N->l = remove(N->l, d);  // search left
+        else if ( d > N->d ) N->r = remove(N->r, d);  // search right
+        else
+        {  
+            if((N->l==NULL)||(N->r==NULL))  //one child or no child  
+            {  
+                node *temp = N->l? N->l: N->r;
+                // if no child case else one child
+                if(temp ==NULL) N = NULL; else *N =*temp; 
+                free(temp);
+            }  
+            else // two children
+            {  
+                // get smallest in right subtree
+                node* temp = N->r;  
+                while (temp->l != NULL)  
+                    temp = temp->l;  
+                // copy data to ancestor 
+                N->d = temp->d;  
+                // delete the smallest
+                N->r = remove(N->r, temp->d);  
+            }  
+        }  
+    
+        // If the tree had only one node 
+        // then return  
+        if (N == NULL)  
+        return N;  
+    
+        // updating ancestor height
+        N->h = max(H(N->l), H(N->r)) +1;  
+        // check the balance 
+        return makeBalance(N,BF(N),d);
+    }  
+
+    void display(node *root) 
+    { 
+        if(root != NULL) 
+        { 
+            cout << root->d << " "; 
+            display(root->l); 
+            display(root->r); 
+        } 
+    } 
 };
 
 
@@ -156,6 +261,21 @@ struct llrbBST //left leaning red black binary search tree
 
 int main(){
  
+
+    /*AVL TEST*/
+    avlBST avl;
+    avl.root = avl.insert(avl.root, 1); 
+	avl.root = avl.insert(avl.root, 2); 
+	avl.root = avl.insert(avl.root, 3); 
+	avl.root = avl.insert(avl.root, 4); 
+	avl.root = avl.insert(avl.root, 5); 
+	avl.root = avl.insert(avl.root, 6);
+    avl.root = avl.insert(avl.root, 7); 
+    avl.root = avl.insert(avl.root, 8); 
+    avl.root = avl.insert(avl.root, 9); 
+    avl.root = avl.insert(avl.root,10); 
+	avl.root = avl.remove(avl.root, 8);
+    avl.display(avl.root);
     /* llrbBST test
     llrbBST t;
     t.put(t.H,'S');
@@ -169,8 +289,10 @@ int main(){
     t.put(t.H,'P');
     t.put(t.H,'L');
     t.display(t.H);
+    //t.deleteRec(t.H,'M');
+    //t.display(t.H);
     //M E C A L H R P X S 
-    */
+    //*/
 
     /* merge sort test
     veci v = {1,3,6,9,4,6,8,9};

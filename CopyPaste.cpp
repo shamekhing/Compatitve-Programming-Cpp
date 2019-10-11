@@ -7,11 +7,14 @@ using namespace std;
  * Algos & DS:     * 
  * 01- merge sort  * * * * * * * * * * * * * * * *
  * 02- left leaning red black binary search tree *
- * 03- 
+ * 03- AVL binary search tree  * * * * * * * * * * 
+ * 04- binary indexed tree * * *
  * 
  * * * * * * * * * * * * * * * * * * */
 
 typedef vector<int> veci;
+typedef long long lol;
+const int m = 1e9+7;
 
 /*/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\**
 **\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/*/  
@@ -145,6 +148,9 @@ struct llrbBST //left leaning red black binary search tree
 
 };
 
+/*/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\**
+**\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/*/
+
 struct avlBST
 {   
     struct node 
@@ -256,6 +262,52 @@ struct avlBST
     } 
 };
 
+/*/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\**
+**\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/*/
+
+struct BITree
+{
+    int N;
+    lol K;
+    vector<int> BIT;
+    vector<lol> FAC; //factorial
+
+    BITree(int n)
+    {
+        N=n;
+        K=1;
+        FAC.resize(n);
+        BIT.resize(n,0);
+        build();
+    }
+
+    void build()
+    {
+        for (int i = 1; i <= N; i++)
+        {
+            add(i,1); 
+            K=K*i%m; 
+            FAC[i-1]=K;
+        }
+    }
+
+    int get(int ix) //get prefix sum (the new index of the number)
+    {   
+        ix--;
+        int ret = 0;
+        for ( ; ix > -1 ; ix = ( ix & (ix+1) ) -1 )
+            ret += BIT[ix];
+        
+        return ret;
+    }
+    
+    void add(int ix, int dv=-1) // index, value added (delta) map the number system 
+    {
+        ix--;
+        for (; ix<N; ix=ix|(ix+1))
+            BIT[ix]+=dv;
+    }
+};
 
 // TESTING HERE
 

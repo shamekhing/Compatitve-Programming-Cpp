@@ -10,7 +10,7 @@
  * Sort Methods:
  * 1- selection
  * 2- insertion
- * 3- shellsort
+ * 3- shellsort --TODO
  * 4- mergesort
  * 5- quicksort
  * 6- shuffle
@@ -34,9 +34,11 @@ public:
    void selection();    // Complexity n^2/2
    void insertion();    // Complexity best n avg n^2/4 worst selection
    void shellsort();    // Complexity sqrt(n^2) for h = 3x+1
+   
    void mergesort();    // Complexity n log(n)
-        void mergesort(int s , int e); // over loaded with default argument
-   void quicksort();    // Complexity sqrt(n^2) for h = 3x+1
+        void mergesort(int s, int e); // over loaded with default argument
+   void quicksort();
+        void quicksort(int s, int e);    // Complexity sqrt(n^2) for h = 3x+1
 
    void shuffle();      // Complexity n
 };
@@ -125,20 +127,40 @@ void Sort::mergesort(int s, int e)
 
     for (int i = 0; i < k; i++)
         Sort::vec[s+i]=temp[i];
-    ivec ans(temp);
-    //{5 6 8,0,2,1,7,3,9,4};    
+    
     return;
 }
 
-void Sort::mergesort(){mergesort(0,siz-1);}
+void Sort::quicksort(int s, int e)
+{
+    if(e<=s) return;
+    int l=s,h=e,
+        i=s+1;
 
+    while (i<=h)
+    {
+             if(vec[l] > vec[i]) {swap(vec[l],vec[i]); l++; i++;}
+        else if(vec[l] < vec[i]) {swap(vec[i],vec[h]); h--;}
+        else i++;
+        
+    }
+
+    quicksort(s,l-1);
+    quicksort(h+1,e);    
+    
+    return;
+}
+
+
+void Sort::mergesort(){mergesort(0,siz-1);}
+void Sort::quicksort(){shuffle();quicksort(0,siz-1);}
 
 void Sort::shuffle()
 {
     int r;//siz = vec.size();
     for (int i = 0; i < siz; i++)
     {
-        r = rand() % i; // + offset
+        r = rand() % (i+1); // + offset
         swap(vec[i],vec[r]);
     }
 }
